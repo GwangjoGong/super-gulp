@@ -1,0 +1,7 @@
+{
+  "name": "supergulp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Gwangjo Gong <dwc05101@kaist.ac.kr>",
+  "license": "MIT"
+}
