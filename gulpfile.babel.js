@@ -1,17 +1,32 @@
 import gulp from 'gulp'
 import pugPlugin from 'gulp-pug'
 import del from 'del'
+import ws from 'gulp-webserver'
 
 const routes = {
   pug: {
+    watch: 'src/**/*.pug',
     src: 'src/*.pug',
     dest: 'build'
   }
 }
 
-export const pug = () =>
+const pug = () =>
   gulp.src(routes.pug.src).pipe(pugPlugin()).pipe(gulp.dest(routes.pug.dest))
 
-export const clean = () => del(['build'])
+const clean = () => del(['build'])
 
-export const dev = gulp.series([clean, pug])
+const webserver = () =>
+  gulp.src('build').pipe(ws({ livereload: true, open: true }))
+
+const watch = () => {
+  gulp.watch(routes.pug.watch, pug)
+}
+
+export const prepare = gulp.series([clean])
+
+export const assets = gulp.series([pug])
+
+export const postDev = gulp.parallel([webserver, watch])
+
+export const dev = gulp.series([prepare, assets, postDev])
