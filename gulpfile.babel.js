@@ -6,6 +6,7 @@ import autoPrefixer from 'gulp-autoprefixer'
 import minify from 'gulp-csso'
 import bro from 'gulp-bro'
 import babelify from 'babelify'
+import ghpage from 'gulp-gh-pages'
 import del from 'del'
 import ws from 'gulp-webserver'
 
@@ -31,7 +32,7 @@ const routes = {
   }
 }
 
-const clean = () => del(['build'])
+const clean = () => del(['build', '.publish'])
 
 const pug = () =>
   gulp.src(routes.pug.src).pipe(pugPlugin()).pipe(gulp.dest(routes.pug.dest))
@@ -66,6 +67,8 @@ const js = () =>
 const webserver = () =>
   gulp.src('build').pipe(ws({ livereload: true, open: true }))
 
+const ghPage = () => gulp.src('build/**/*').pipe(ghpage())
+
 const watch = () => {
   gulp.watch(routes.pug.watch, pug)
   gulp.watch(routes.images.src, img)
@@ -73,10 +76,12 @@ const watch = () => {
   gulp.watch(routes.js.watch, js)
 }
 
-export const prepare = gulp.series([clean])
+const prepare = gulp.series([clean])
 
-export const assets = gulp.series([pug, img, styles, js])
+const assets = gulp.series([pug, img, styles, js])
 
-export const postDev = gulp.parallel([webserver, watch])
+const server = gulp.parallel([webserver, watch])
 
-export const dev = gulp.series([prepare, assets, postDev])
+export const build = gulp.series([prepare, assets])
+export const dev = gulp.series([build, server])
+export const deploy = gulp.series([build, ghPage, clean])
